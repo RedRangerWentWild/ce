@@ -8,7 +8,9 @@ import {
   UtensilsCrossed, 
   LogOut, 
   AlertCircle,
-  BarChart3
+  BarChart3,
+  IndianRupee,
+  LineChart
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -52,12 +54,14 @@ const Navbar = () => {
           {user.role === 'vendor' && (
             <>
               <NavItem to="/vendor/dashboard" icon={LayoutDashboard} label="Dashboard" />
+              <NavItem to="/vendor/withdrawals" icon={IndianRupee} label="Withdrawals" />
             </>
           )}
 
           {user.role === 'admin' && (
             <>
-              <NavItem to="/admin/dashboard" icon={BarChart3} label="Analytics" />
+              <NavItem to="/admin/dashboard" icon={LayoutDashboard} label="Dashboard" />
+              <NavItem to="/admin/stats" icon={LineChart} label="Statistics" />
               <NavItem to="/admin/complaints" icon={AlertCircle} label="Complaints" />
             </>
           )}

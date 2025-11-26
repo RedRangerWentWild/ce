@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import Layout from "./components/Layout";
@@ -7,11 +7,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import StudentDashboard from "./pages/StudentDashboard";
 import VendorDashboard from "./pages/VendorDashboard";
+import VendorWithdrawals from "./pages/VendorWithdrawals";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminStats from "./pages/AdminStats";
 import Wallet from "./pages/Wallet";
 import Complaints from "./pages/Complaints";
-
-import { Outlet } from "react-router-dom";
 
 const ProtectedRoute = ({ allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -63,11 +63,13 @@ function App() {
             {/* Vendor Routes */}
             <Route path="vendor" element={<ProtectedRoute allowedRoles={['vendor']} />}>
               <Route path="dashboard" element={<VendorDashboard />} />
+              <Route path="withdrawals" element={<VendorWithdrawals />} />
             </Route>
 
             {/* Admin Routes */}
             <Route path="admin" element={<ProtectedRoute allowedRoles={['admin']} />}>
               <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="stats" element={<AdminStats />} />
               <Route path="complaints" element={<AdminDashboard />} />
             </Route>
           </Route>
