@@ -5,7 +5,7 @@ from typing import Optional
 import os
 
 # Configuration
-SECRET_KEY = os.environ.get("SECRET_KEY", "supersecretkey")
+SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
