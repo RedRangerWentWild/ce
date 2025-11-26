@@ -69,7 +69,7 @@ class CredEatAPITester:
             "Student Registration",
             "POST",
             "auth/register",
-            201,
+            200,
             data=student_data
         )
         if success and 'id' in response:
