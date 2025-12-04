@@ -12,7 +12,7 @@ import { Wallet as WalletIcon, ArrowRightLeft, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Wallet = () => {
-  const { API } = useAuth();
+  const { API, refreshUser } = useAuth();
   const [data, setData] = useState({ balance: 0, transactions: [] });
   const [loading, setLoading] = useState(true);
   const [payOpen, setPayOpen] = useState(false);
@@ -45,7 +45,10 @@ const Wallet = () => {
       toast.success("Payment successful!");
       setPayOpen(false);
       setPayData({ vendor_id: '', amount: '' });
-      fetchData(); // Refresh balance
+      fetchData(); // Refresh wallet view
+      if (refreshUser) {
+        await refreshUser(); // Refresh user context so other screens (e.g. Student dashboard) see updated balance
+      }
     } catch (error) {
       toast.error(error.response?.data?.detail || "Payment failed");
     } finally {
