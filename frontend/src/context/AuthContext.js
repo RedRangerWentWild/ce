@@ -4,8 +4,8 @@ import { toast } from 'sonner';
 
 const AuthContext = createContext(null);
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Use relative API path so frontend talks to the same Vercel project backend
+const API = "/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
