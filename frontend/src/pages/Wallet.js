@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Wallet as WalletIcon, ArrowRightLeft, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -80,14 +81,19 @@ const Wallet = () => {
               </DialogHeader>
               <form onSubmit={handlePay} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="vendor_id">Vendor ID</Label>
-                  <Input 
-                    id="vendor_id" 
-                    placeholder="Enter Vendor ID" 
+                  <Label htmlFor="vendor_id">Vendor</Label>
+                  <Select
                     value={payData.vendor_id}
-                    onChange={e => setPayData({...payData, vendor_id: e.target.value})}
-                    required
-                  />
+                    onValueChange={(value) => setPayData({ ...payData, vendor_id: value })}
+                  >
+                    <SelectTrigger id="vendor_id">
+                      <SelectValue placeholder="Select a vendor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ChaiAdda">ChaiAdda</SelectItem>
+                      <SelectItem value="CCD">CCD</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount</Label>
