@@ -6,10 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, Utensils } from 'lucide-react';
 import { toast } from 'sonner';
 
+const getTodayString = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const CUTOFF_DATE = '2025-12-12'; // After this, show "Menu not decided"
+
 const StudentDashboard = () => {
   const { API, user, refreshUser } = useAuth();
   const [meals, setMeals] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [selections, setSelections] = useState({});
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -73,6 +83,11 @@ const StudentDashboard = () => {
     ? meals.filter((meal) => meal.date === selectedDate)
     : meals;
 
+  const today = getTodayString();
+  const isPastDate = selectedDate && selectedDate < today;
+  const isAfterCutoff = selectedDate && selectedDate > CUTOFF_DATE;
+  const displayMeals = !isPastDate && !isAfterCutoff ? filteredMeals : [];
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -92,9 +107,15 @@ const StudentDashboard = () => {
             <Utensils className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{filteredMeals.length}</div>
+            <div className="text-2xl font-bold">{displayMeals.length}</div>
             <p className="text-xs text-muted-foreground">
-              {selectedDate ? `Meals on ${selectedDate}` : 'Upcoming meals'}
+              {isPastDate
+                ? 'Date already passed'
+                : isAfterCutoff
+                  ? 'Menu not decided'
+                  : selectedDate
+                    ? `Meals on ${selectedDate}`
+                    : 'Upcoming meals'}
             </p>
           </CardContent>
         </Card>
@@ -113,17 +134,34 @@ const StudentDashboard = () => {
             />
           </div>
         </div>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredMeals.map(meal => (
-            <MealCard 
-              key={meal.id} 
-              meal={meal} 
-              selection={selections[meal.id]} 
-              onToggle={handleToggle}
-              loading={actionLoading}
-            />
-          ))}
-        </div>
+        {isPastDate && (
+          <div className="text-center text-muted-foreground py-8">
+            This date has already passed. Please select today or a future date.
+          </div>
+        )}
+        {isAfterCutoff && (
+          <div className="text-center text-muted-foreground py-8">
+            Menu not decided yet for this date. Please select an earlier date.
+          </div>
+        )}
+        {!isPastDate && !isAfterCutoff && (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {displayMeals.map(meal => (
+              <MealCard 
+                key={meal.id} 
+                meal={meal} 
+                selection={selections[meal.id]} 
+                onToggle={handleToggle}
+                loading={actionLoading}
+              />
+            ))}
+            {displayMeals.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-8">
+                No meals scheduled for this date.
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
