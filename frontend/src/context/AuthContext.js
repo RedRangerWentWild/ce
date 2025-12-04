@@ -4,8 +4,10 @@ import { toast } from 'sonner';
 
 const AuthContext = createContext(null);
 
-// Backend base URL is provided via environment variable at build time
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+// Backend base URL is provided via environment variable at build time.
+// Normalize it so we don't end up with double slashes like "//api/...".
+const RAW_BACKEND_URL = process.env.REACT_APP_BACKEND_URL || "";
+const BACKEND_URL = RAW_BACKEND_URL.replace(/\/+$/, "");
 const API = `${BACKEND_URL}/api`;
 
 export const AuthProvider = ({ children }) => {
