@@ -36,21 +36,39 @@ async def select_meal(
         raise HTTPException(status_code=404, detail="Meal not found")
         
     # Check existing selection
-    existing = await db.meal_selections.find_one({
-        "user_id": current_user.id,
-        "meal_id": meal_id
-    })
-    
+    existing = await db.meal_selections.find_one(
+        {
+            "user_id": current_user.id,
+            "meal_id": meal_id,
+        }
+    )
+
     # Logic for credits
     credit_change = 0
     if existing:
-        if existing['status'] == "attending" and status == "skipped":
-            credit_change = meal['price']
-        elif existing['status'] == "skipped" and status == "attending":
-            credit_change = -meal['price']
-            
+        # If currently attending and user skips -> earn credits
+        if existing["status"] == "attending" and status == "skipped":
+            credit_change = meal["price"]
+
+        # If currently skipped and user wants to attend -> need to "pay back" credits
+        elif existing["status"] == "skipped" and status == "attending":
+            # Fetch fresh balance from DB to avoid stale token data
+            user = await db.users.find_one({"email": current_user.email})
+            if not user:
+                raise HTTPException(status_code=400, detail="User not found")
+
+            if user.get("wallet_balance", 0) < meal["price"]:
+                # Do NOT update the selection if they can't afford to re-join
+                raise HTTPException(
+                    status_code=400,
+                    detail="Insufficient credits to re-join meal",
+                )
+
+            credit_change = -meal["price"]
+
+        # Only update the selection if we're not blocking for insufficient funds
         await db.meal_selections.update_one(
-            {"id": existing['id']},
+            {"id": existing["id"]},
             {"$set": {"status": status, "timestamp": datetime.now(timezone.utc).isoformat()}}
         )
     else:
@@ -68,12 +86,6 @@ async def select_meal(
             
     # Update wallet if needed
     if credit_change != 0:
-        # Check balance if deducting
-        if credit_change < 0 and current_user.wallet_balance + credit_change < 0:
-             # Revert selection if insufficient funds (edge case if they spent the credits)
-             # For now, allow negative or block? Let's block.
-             raise HTTPException(status_code=400, detail="Insufficient credits to re-join meal")
-
         await db.users.update_one(
             {"email": current_user.email},
             {"$inc": {"wallet_balance": credit_change}}
