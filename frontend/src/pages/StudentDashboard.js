@@ -19,7 +19,6 @@ const CUTOFF_DATE = '2025-12-12'; // After this, show "Menu not decided"
 const StudentDashboard = () => {
   const { API, user, refreshUser } = useAuth();
   const [meals, setMeals] = useState([]);
-  const [walletBalance, setWalletBalance] = useState(0);
   const [selectedDate, setSelectedDate] = useState(getTodayString());
   const [selections, setSelections] = useState({});
   const [loading, setLoading] = useState(true);
@@ -27,14 +26,12 @@ const StudentDashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [mealsRes, selectionsRes, walletRes] = await Promise.all([
+      const [mealsRes, selectionsRes] = await Promise.all([
         axios.get(`${API}/meals/`),
-        axios.get(`${API}/meals/my-selections`),
-        axios.get(`${API}/wallet/`)
+        axios.get(`${API}/meals/my-selections`)
       ]);
-      
+
       setMeals(mealsRes.data);
-      setWalletBalance(walletRes.data.balance);
       
       // Convert selections array to map for easier lookup
       const selMap = {};
@@ -106,7 +103,7 @@ const StudentDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {walletBalance.toFixed(2)} Credits
+              {user?.wallet_balance?.toFixed(2) ?? '0.00'} Credits
             </div>
             <p className="text-xs text-muted-foreground">Available to spend</p>
           </CardContent>
