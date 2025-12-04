@@ -33,11 +33,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const formData = new FormData();
-      formData.append('username', email);
-      formData.append('password', password);
+      // Use URL-encoded body to avoid a CORS preflight and match FastAPI's OAuth2 form expectations
+      const params = new URLSearchParams();
+      params.append('username', email);
+      params.append('password', password);
       
-      const res = await axios.post(`${API}/auth/login`, formData);
+      const res = await axios.post(`${API}/auth/login`, params);
       const token = res.data.access_token;
       
       localStorage.setItem('token', token);
@@ -53,6 +54,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     try {
+      // Send as JSON; backend FastAPI endpoint expects a JSON body
       await axios.post(`${API}/auth/register`, data);
       toast.success("Registration successful! Please login.");
       return true;
