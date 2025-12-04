@@ -7,7 +7,7 @@ import { Wallet, Utensils } from 'lucide-react';
 import { toast } from 'sonner';
 
 const StudentDashboard = () => {
-  const { API, user } = useAuth();
+  const { API, user, refreshUser } = useAuth();
   const [meals, setMeals] = useState([]);
   const [selections, setSelections] = useState({});
   const [loading, setLoading] = useState(true);
@@ -53,10 +53,11 @@ const StudentDashboard = () => {
       }));
       
       toast.success(status === 'skipped' ? "Meal skipped. Credits added!" : "Meal marked as attending.");
-      
-      // Refresh to get updated wallet balance in context if we had one, 
-      // but for now we might need to trigger a user refresh or just wait.
-      // Ideally AuthContext should expose a refreshUser function.
+
+      // Refresh user so wallet_balance updates in the dashboard
+      if (refreshUser) {
+        await refreshUser();
+      }
       
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to update selection");
