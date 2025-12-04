@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 const StudentDashboard = () => {
   const { API, user, refreshUser } = useAuth();
   const [meals, setMeals] = useState([]);
+  const [selectedDate, setSelectedDate] = useState('');
   const [selections, setSelections] = useState({});
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -68,6 +69,10 @@ const StudentDashboard = () => {
 
   if (loading) return <div className="p-8 text-center">Loading meals...</div>;
 
+  const filteredMeals = selectedDate
+    ? meals.filter((meal) => meal.date === selectedDate)
+    : meals;
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -87,16 +92,29 @@ const StudentDashboard = () => {
             <Utensils className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{meals.length}</div>
-            <p className="text-xs text-muted-foreground">Upcoming meals</p>
+            <div className="text-2xl font-bold">{filteredMeals.length}</div>
+            <p className="text-xs text-muted-foreground">
+              {selectedDate ? `Meals on ${selectedDate}` : 'Upcoming meals'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold tracking-tight mb-4">Upcoming Meals</h2>
+        <div className="flex items-center justify-between mb-4 gap-4">
+          <h2 className="text-2xl font-bold tracking-tight">Upcoming Meals</h2>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Filter by date:</span>
+            <input
+              type="date"
+              className="border rounded-md px-2 py-1 text-sm"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+        </div>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {meals.map(meal => (
+          {filteredMeals.map(meal => (
             <MealCard 
               key={meal.id} 
               meal={meal} 
