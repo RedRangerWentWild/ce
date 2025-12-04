@@ -74,7 +74,12 @@ const StudentDashboard = () => {
       }
       
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Failed to update selection");
+      const detail = error.response?.data?.detail;
+      if (detail === "Insufficient credits to re-join meal") {
+        toast.error("You don't have enough credits to mark this meal as attending.");
+      } else {
+        toast.error(detail || "Failed to update selection");
+      }
     } finally {
       setActionLoading(false);
     }
